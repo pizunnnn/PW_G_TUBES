@@ -63,6 +63,29 @@
         </div>
     </div>
 
+    <!-- Quick Actions -->
+<div class="mb-8">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">Quick Actions</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="{{ route('admin.categories.index') }}" class="bg-green-100 p-6 rounded-lg text-center hover:bg-green-200 transition">
+            <i class="fas fa-layer-group text-4xl text-green-600 mb-2"></i>
+            <p class="font-semibold text-gray-800">Manage Categories</p>
+        </a>
+        <a href="#" class="bg-blue-100 p-6 rounded-lg text-center hover:bg-blue-200 transition">
+            <i class="fas fa-box text-4xl text-blue-600 mb-2"></i>
+            <p class="font-semibold text-gray-800">Manage Products</p>
+        </a>
+        <a href="#" class="bg-yellow-100 p-6 rounded-lg text-center hover:bg-yellow-200 transition">
+            <i class="fas fa-receipt text-4xl text-yellow-600 mb-2"></i>
+            <p class="font-semibold text-gray-800">Transactions</p>
+        </a>
+        <a href="#" class="bg-purple-100 p-6 rounded-lg text-center hover:bg-purple-200 transition">
+            <i class="fas fa-users text-4xl text-purple-600 mb-2"></i>
+            <p class="font-semibold text-gray-800">Users</p>
+        </a>
+    </div>
+</div>
+
     <!-- Recent Transactions -->
     <div class="bg-white rounded-lg shadow">
         <div class="p-6 border-b">

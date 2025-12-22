@@ -4,6 +4,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Support\Facades\Route;
@@ -20,14 +23,31 @@ Route::middleware('guest')->group(function () {
 // Public homepage (bisa diakses semua orang)
 Route::get('/', [DashboardController::class, 'index'])->name('home');
 
+// Public product routes
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/api/products/search', [ProductController::class, 'search'])->name('products.search');
+
 // Authenticated routes (harus login)
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
     
-    // User dashboard & transactions
+    // User dashboard 
     Route::get('/dashboard', function() {
         return redirect('/');
     })->name('dashboard');
+    
+    // Transactions
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/create/{product}', [TransactionController::class, 'create'])->name('transactions.create');
+    Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/transactions/{transactionCode}', [TransactionController::class, 'show'])->name('transactions.show');
+    
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::get('/profile/vouchers', [ProfileController::class, 'vouchers'])->name('profile.vouchers');
 });
 
 // Admin only routes

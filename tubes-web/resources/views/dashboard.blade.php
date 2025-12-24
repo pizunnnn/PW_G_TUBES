@@ -7,7 +7,7 @@
     <!-- Hero Section -->
     <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg shadow-lg p-12 mb-8 text-white">
         <h1 class="text-4xl font-bold mb-4">
-            <i class="fas fa-rocket"></i> Selamat Datang di Anti-Gravity!
+            <i class="fas fa-rocket"></i> Selamat Datang di ROCKERRT!
         </h1>
         <p class="text-xl mb-6">Voucher game terlengkap dengan harga terbaik</p>
         

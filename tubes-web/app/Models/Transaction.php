@@ -16,8 +16,14 @@ class Transaction extends Model
         'transaction_code',
         'quantity',
         'total_price',
+        'voucher_code_id',
+        'discount_amount',
         'payment_status',
+        'topup_status',
         'payment_method',
+        'bank',
+        'game_user_id',
+        'game_server',
         'midtrans_order_id',
         'midtrans_transaction_id',
         'paid_at',
@@ -26,6 +32,7 @@ class Transaction extends Model
     protected $casts = [
         'quantity' => 'integer',
         'total_price' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
         'paid_at' => 'datetime',
     ];
 
@@ -40,9 +47,9 @@ class Transaction extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function voucherCodes()
+    public function voucherCode()
     {
-        return $this->hasMany(VoucherCode::class);
+        return $this->belongsTo(VoucherCode::class);
     }
 
     // Accessors
@@ -54,11 +61,12 @@ class Transaction extends Model
     public function getStatusBadgeAttribute()
     {
         return match($this->payment_status) {
-            'pending' => '<span class="badge bg-warning">Pending</span>',
-            'paid' => '<span class="badge bg-success">Paid</span>',
-            'failed' => '<span class="badge bg-danger">Failed</span>',
-            'expired' => '<span class="badge bg-secondary">Expired</span>',
-            default => '<span class="badge bg-dark">Unknown</span>',
+            'pending' => '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>',
+            'paid' => '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Dibayar</span>',
+            'failed' => '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Gagal</span>',
+            'cancelled' => '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Dibatalkan</span>',
+            'expired' => '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Kedaluwarsa</span>',
+            default => '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600">Tidak Diketahui</span>',
         };
     }
 
@@ -76,6 +84,21 @@ class Transaction extends Model
     public function scopeFailed($query)
     {
         return $query->where('payment_status', 'failed');
+    }
+
+    public function scopeTopupPending($query)
+    {
+        return $query->where('topup_status', 'pending');
+    }
+
+    public function scopeTopupCompleted($query)
+    {
+        return $query->where('topup_status', 'completed');
+    }
+
+    public function scopeTopupFailed($query)
+    {
+        return $query->where('topup_status', 'failed');
     }
 
     // Helper methods
@@ -108,6 +131,31 @@ class Transaction extends Model
     {
         $this->update([
             'payment_status' => 'expired',
+        ]);
+    }
+
+    // Topup status helpers
+    public function isTopupPending()
+    {
+        return $this->topup_status === 'pending';
+    }
+
+    public function isTopupCompleted()
+    {
+        return $this->topup_status === 'completed';
+    }
+
+    public function markTopupAsCompleted()
+    {
+        $this->update([
+            'topup_status' => 'completed',
+        ]);
+    }
+
+    public function markTopupAsFailed()
+    {
+        $this->update([
+            'topup_status' => 'failed',
         ]);
     }
 

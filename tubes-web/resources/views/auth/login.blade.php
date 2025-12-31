@@ -96,17 +96,6 @@
                 </p>
             </div>
         </div>
-
-        <!-- Demo Accounts Info -->
-        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p class="text-sm text-blue-800 font-semibold mb-2">
-                <i class="fas fa-info-circle"></i> Akun Demo:
-            </p>
-            <div class="text-sm text-blue-700 space-y-1">
-                <p><strong>Admin:</strong> admin@example.com / password</p>
-                <p><strong>User:</strong> user@example.com / password</p>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

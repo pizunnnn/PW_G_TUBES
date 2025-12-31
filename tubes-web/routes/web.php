@@ -11,7 +11,12 @@ use App\Http\Controllers\Admin\TransactionController as AdminTransactionControll
 use App\Http\Controllers\Admin\VoucherCodeController;
 use App\Http\Controllers\User\UserTransactionController;
 use App\Http\Controllers\MidtransController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MidtransCallbackController;
+
+Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
+    ->name('midtrans.callback');
 
 // Guest routes (tidak perlu login)
 Route::middleware('guest')->group(function () {
@@ -21,9 +26,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });
-
-// Public homepage (bisa diakses semua orang)
-Route::get('/', [DashboardController::class, 'index'])->name('home');
 
 // Product detail page (public)
 Route::get('/products/{product:slug}', [DashboardController::class, 'show'])->name('products.show');
@@ -77,4 +79,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('voucher-codes/create', [VoucherCodeController::class, 'create'])->name('voucher-codes.create');
     Route::post('voucher-codes', [VoucherCodeController::class, 'store'])->name('voucher-codes.store');
     Route::delete('voucher-codes/{voucherCode}', [VoucherCodeController::class, 'destroy'])->name('voucher-codes.destroy');
+
+    // Users routes (NEW!)
+    Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::post('users/{user}/toggle-role', [\App\Http\Controllers\Admin\UserController::class, 'toggleRole'])->name('users.toggle-role');
+    Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
 });
+
+Route::get('/pay', [PaymentController::class, 'pay']);

@@ -70,7 +70,7 @@ class Product extends Model
     // Helper methods
     public function isInStock()
     {
-        return $this->stock > 0;
+        return $this->stock > 1;
     }
 
     public function decreaseStock($quantity = 1)
@@ -85,5 +85,10 @@ class Product extends Model
     public function increaseStock($quantity = 1)
     {
         $this->increment('stock', $quantity);
+    }
+    
+    public function getPriceForPayment()
+    {
+        return (int) $this->price;
     }
 }

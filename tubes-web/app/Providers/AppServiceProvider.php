@@ -11,7 +11,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\MidtransService::class);
+        $this->app->singleton(\App\Services\VoucherCodeService::class);
+        $this->app->singleton(\App\Services\CurrencyService::class);
     }
 
     /**

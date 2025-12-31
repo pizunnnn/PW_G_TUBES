@@ -9,9 +9,10 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
 use App\Http\Controllers\Admin\VoucherCodeController;
+use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\User\UserTransactionController;
 use App\Http\Controllers\MidtransController;
 use Illuminate\Support\Facades\Route;
@@ -63,7 +64,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.list');
     Route::get('/transactions/create/{product}', [TransactionController::class, 'create'])->name('transactions.create');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::post('/transactions/apply-voucher', [TransactionController::class, 'applyVoucher'])->name('transactions.apply-voucher');
+    Route::delete('/transactions/{transactionCode}/cancel', [TransactionController::class, 'cancel'])->name('transactions.cancel');
     Route::get('/transactions/{transactionCode}', [TransactionController::class, 'detail'])->name('transactions.detail');
+    Route::get('/transactions/{transactionCode}/invoice', [TransactionController::class, 'downloadInvoice'])->name('transactions.invoice');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
@@ -71,6 +75,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::get('/profile/vouchers', [ProfileController::class, 'vouchers'])->name('profile.vouchers');
 });
+
+// Midtrans payment callback (no auth required)
+Route::post('/payment/midtrans/callback', [TransactionController::class, 'midtransCallback'])->name('payment.midtrans.callback');
 
 // Admin only routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -81,8 +88,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('categories/{category}/toggle', [CategoryController::class, 'toggleActive'])->name('categories.toggle');
 
     // Products routes
-    Route::resource('products', ProductController::class);
-    Route::post('products/{product}/toggle', [ProductController::class, 'toggleActive'])->name('products.toggle');
+    Route::resource('products', AdminProductController::class);
+    Route::post('products/{product}/toggle', [AdminProductController::class, 'toggleActive'])->name('products.toggle');
 
     // Transactions routes
     Route::get('transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
@@ -95,6 +102,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('voucher-codes/create', [VoucherCodeController::class, 'create'])->name('voucher-codes.create');
     Route::post('voucher-codes', [VoucherCodeController::class, 'store'])->name('voucher-codes.store');
     Route::delete('voucher-codes/{voucherCode}', [VoucherCodeController::class, 'destroy'])->name('voucher-codes.destroy');
+
+    // Sliders routes
+    Route::resource('sliders', SliderController::class);
+    Route::post('sliders/{slider}/toggle', [SliderController::class, 'toggleActive'])->name('sliders.toggle');
 });
 
 // Payment route (from second branch)

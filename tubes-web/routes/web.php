@@ -14,6 +14,7 @@ use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
     ->name('midtrans.callback');
@@ -81,10 +82,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('voucher-codes/{voucherCode}', [VoucherCodeController::class, 'destroy'])->name('voucher-codes.destroy');
 
     // Users routes (NEW!)
-    Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
-    Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
-    Route::post('users/{user}/toggle-role', [\App\Http\Controllers\Admin\UserController::class, 'toggleRole'])->name('users.toggle-role');
-    Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::post('users/{user}/toggle-role', [UserController::class, 'toggleRole'])->name('users.toggle-role');
+    Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
 Route::get('/pay', [PaymentController::class, 'pay']);

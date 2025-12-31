@@ -15,11 +15,13 @@ class Category extends Model
         'slug',
         'icon',
         'description',
+        'account_fields',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'account_fields' => 'array',
     ];
 
     // Relationships

@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => AdminMiddleware::class,
         ]);
+
+        // Exclude Midtrans callback from CSRF verification
+        $middleware->validateCsrfTokens(except: [
+            'payment/midtrans/callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

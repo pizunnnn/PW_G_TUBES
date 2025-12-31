@@ -1,7 +1,7 @@
 <div class="col product-item">
     <div class="card h-100 border-0 shadow-sm transition-hover">
         <div class="position-relative">
-            <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top p-3" alt="{{ $product->name }}" style="height: 200px; object-fit: contain;">
+            <img src="{{ str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image) }}" class="card-img-top p-3" alt="{{ $product->name }}" style="height: 200px; object-fit: contain;">
         </div>
 
         <div class="card-body d-flex flex-column">

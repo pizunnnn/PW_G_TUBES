@@ -20,8 +20,8 @@
         <div class="bg-white rounded-2xl shadow-xl p-8">
             <div class="aspect-square bg-gradient-to-br from-purple-400 to-indigo-600 rounded-xl flex items-center justify-center overflow-hidden">
                 @if($product->image)
-                    <img src="{{ asset('storage/' . $product->image) }}" 
-                         alt="{{ $product->name }}" 
+                    <img src="{{ str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image) }}"
+                         alt="{{ $product->name }}"
                          class="w-full h-full object-cover">
                 @else
                     <i class="fas fa-gamepad text-9xl text-white"></i>
@@ -121,8 +121,8 @@
                         <a href="{{ route('products.show', $related->slug) }}">
                             <div class="h-40 bg-gradient-to-br from-purple-400 to-indigo-600 flex items-center justify-center">
                                 @if($related->image)
-                                    <img src="{{ asset('storage/' . $related->image) }}" 
-                                         alt="{{ $related->name }}" 
+                                    <img src="{{ str_starts_with($related->image, 'http') ? $related->image : asset('storage/' . $related->image) }}"
+                                         alt="{{ $related->name }}"
                                          class="h-full w-full object-cover">
                                 @else
                                     <i class="fas fa-gamepad text-5xl text-white"></i>

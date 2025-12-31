@@ -62,7 +62,8 @@ class CategoryController extends Controller
     // Show form edit
     public function edit(Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        $game = $category;
+        return view('admin.categories.edit', compact('game'));
     }
 
     // Update category
@@ -73,11 +74,19 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'icon' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'is_active' => 'boolean',
+            'account_fields' => 'nullable|json',
         ]);
 
         // Generate slug
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->has('is_active') ? true : false;
+
+        // Handle account fields
+        if ($request->filled('account_fields')) {
+            $validated['account_fields'] = json_decode($request->account_fields, true);
+        } else {
+            $validated['account_fields'] = null;
+        }
 
         // Handle icon upload
         if ($request->hasFile('icon')) {
@@ -85,7 +94,7 @@ class CategoryController extends Controller
             if ($category->icon && Storage::disk('public')->exists($category->icon)) {
                 Storage::disk('public')->delete($category->icon);
             }
-            
+
             $iconPath = $request->file('icon')->store('categories', 'public');
             $validated['icon'] = $iconPath;
         }

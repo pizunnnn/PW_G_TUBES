@@ -15,7 +15,7 @@ class AdminController extends Controller
     {
         // Statistics
         $totalUsers = User::where('role', 'user')->count();
-        $totalCategories = Category::count();
+        $totalGames = Category::count();
         $totalProducts = Product::count();
         $totalRevenue = Transaction::where('payment_status', 'paid')->sum('total_price');
         
@@ -28,7 +28,7 @@ class AdminController extends Controller
         // Monthly revenue data for chart
         $monthlyRevenue = Transaction::where('payment_status', 'paid')
             ->whereYear('created_at', date('Y'))
-            ->selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
+            ->selectRaw("CAST(strftime('%m', created_at) AS INTEGER) as month, SUM(total_price) as total")
             ->groupBy('month')
             ->orderBy('month')
             ->get()
@@ -50,7 +50,7 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact(
             'totalUsers',
-            'totalCategories',
+            'totalGames',
             'totalProducts',
             'totalRevenue',
             'recentTransactions',

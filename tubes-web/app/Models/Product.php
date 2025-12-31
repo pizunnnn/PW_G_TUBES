@@ -15,7 +15,10 @@ class Product extends Model
         'name',
         'slug',
         'description',
+        'account_fields',
         'price',
+        'discount_type',
+        'discount_value',
         'stock',
         'image',
         'code_format',
@@ -24,8 +27,10 @@ class Product extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'discount_value' => 'decimal:2',
         'stock' => 'integer',
         'is_active' => 'boolean',
+        'account_fields' => 'array',
     ];
 
     // Relationships
@@ -37,11 +42,6 @@ class Product extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
-    }
-
-    public function voucherCodes()
-    {
-        return $this->hasMany(VoucherCode::class);
     }
 
     // Accessors & Mutators
@@ -85,5 +85,48 @@ class Product extends Model
     public function increaseStock($quantity = 1)
     {
         $this->increment('stock', $quantity);
+    }
+
+    // Discount methods
+    public function hasDiscount()
+    {
+        return $this->discount_type && $this->discount_value > 0;
+    }
+
+    public function getDiscountAmount()
+    {
+        if (!$this->hasDiscount()) {
+            return 0;
+        }
+
+        if ($this->discount_type === 'percentage') {
+            return ($this->price * $this->discount_value) / 100;
+        }
+
+        return $this->discount_value; // fixed amount
+    }
+
+    public function getFinalPrice()
+    {
+        return $this->price - $this->getDiscountAmount();
+    }
+
+    public function getFinalPriceFormattedAttribute()
+    {
+        return 'Rp ' . number_format($this->getFinalPrice(), 0, ',', '.');
+    }
+
+    public function getDiscountPercentage()
+    {
+        if (!$this->hasDiscount()) {
+            return 0;
+        }
+
+        if ($this->discount_type === 'percentage') {
+            return $this->discount_value;
+        }
+
+        // Calculate percentage for fixed discount
+        return ($this->discount_value / $this->price) * 100;
     }
 }

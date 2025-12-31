@@ -46,26 +46,21 @@ class TransactionController extends Controller
 
     public function show(Transaction $transaction)
     {
-        $transaction->load(['user', 'product', 'voucherCodes']);
+        $transaction->load(['user', 'product', 'voucherCode']);
         return view('admin.transactions.show', compact('transaction'));
     }
 
     public function updateStatus(Request $request, Transaction $transaction)
     {
         $validated = $request->validate([
-            'payment_status' => 'required|in:pending,paid,failed,expired',
+            'topup_status' => 'required|in:pending,completed,failed',
         ]);
 
         $transaction->update($validated);
 
-        // If marked as paid, generate voucher codes if not exists
-        if ($validated['payment_status'] === 'paid' && $transaction->voucherCodes()->count() === 0) {
-            app(\App\Services\VoucherCodeService::class)->generateForTransaction($transaction);
-        }
-
         return redirect()
             ->route('admin.transactions.show', $transaction)
-            ->with('success', 'Transaction status updated successfully!');
+            ->with('success', 'Topup status updated successfully!');
     }
 
     public function exportPDF(Request $request)

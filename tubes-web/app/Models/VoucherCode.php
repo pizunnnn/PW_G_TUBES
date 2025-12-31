@@ -11,64 +11,128 @@ class VoucherCode extends Model
     use HasFactory;
 
     protected $fillable = [
-        'transaction_id',
-        'product_id',
         'code',
-        'is_used',
-        'used_at',
+        'discount_type',
+        'discount_value',
+        'category_id',
+        'min_purchase',
+        'max_discount',
+        'valid_from',
+        'valid_until',
+        'usage_limit',
+        'used_count',
+        'is_active',
     ];
 
     protected $casts = [
-        'is_used' => 'boolean',
-        'used_at' => 'datetime',
+        'discount_value' => 'decimal:2',
+        'min_purchase' => 'decimal:2',
+        'max_discount' => 'decimal:2',
+        'valid_from' => 'datetime',
+        'valid_until' => 'datetime',
+        'usage_limit' => 'integer',
+        'used_count' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     // Relationships
-    public function transaction()
+    public function category()
     {
-        return $this->belongsTo(Transaction::class);
+        return $this->belongsTo(Category::class);
     }
 
-    public function product()
+    public function transactions()
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(Transaction::class);
     }
 
     // Scopes
-    public function scopeUnused($query)
+    public function scopeActive($query)
     {
-        return $query->where('is_used', false);
+        return $query->where('is_active', true);
     }
 
-    public function scopeUsed($query)
+    public function scopeValid($query)
     {
-        return $query->where('is_used', true);
+        return $query->where('is_active', true)
+            ->where(function($q) {
+                $q->whereNull('valid_from')
+                  ->orWhere('valid_from', '<=', now());
+            })
+            ->where(function($q) {
+                $q->whereNull('valid_until')
+                  ->orWhere('valid_until', '>=', now());
+            });
+    }
+
+    public function scopeAvailable($query)
+    {
+        return $query->valid()
+            ->whereColumn('used_count', '<', 'usage_limit');
     }
 
     // Helper methods
-    public function markAsUsed()
+    public function isValid()
     {
-        $this->update([
-            'is_used' => true,
-            'used_at' => now(),
-        ]);
+        if (!$this->is_active) return false;
+
+        if ($this->valid_from && $this->valid_from->isFuture()) return false;
+        if ($this->valid_until && $this->valid_until->isPast()) return false;
+
+        return true;
+    }
+
+    public function isAvailable()
+    {
+        return $this->isValid() && $this->used_count < $this->usage_limit;
+    }
+
+    public function canBeUsedFor($product, $totalAmount)
+    {
+        if (!$this->isAvailable()) return false;
+
+        // Check if voucher is for specific category
+        if ($this->category_id && $this->category_id != $product->category_id) {
+            return false;
+        }
+
+        // Check minimum purchase
+        if ($this->min_purchase && $totalAmount < $this->min_purchase) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function calculateDiscount($amount)
+    {
+        if ($this->discount_type === 'percentage') {
+            $discount = ($amount * $this->discount_value) / 100;
+
+            // Apply max discount if set
+            if ($this->max_discount && $discount > $this->max_discount) {
+                $discount = $this->max_discount;
+            }
+
+            return $discount;
+        }
+
+        // Fixed discount
+        return min($this->discount_value, $amount); // Can't discount more than the amount
+    }
+
+    public function incrementUsage()
+    {
+        $this->increment('used_count');
     }
 
     // Generate voucher code
-    public static function generateCode($format = 'XXXX-XXXX-XXXX')
+    public static function generateCode()
     {
         do {
-            $code = '';
-            $parts = explode('-', $format);
-            
-            foreach ($parts as $part) {
-                $length = strlen($part);
-                $code .= strtoupper(Str::random($length)) . '-';
-            }
-            
-            $code = rtrim($code, '-');
+            $code = strtoupper(Str::random(8));
         } while (self::where('code', $code)->exists());
-        
+
         return $code;
     }
 }

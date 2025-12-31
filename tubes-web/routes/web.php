@@ -4,6 +4,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
@@ -25,8 +28,10 @@ Route::middleware('guest')->group(function () {
 // Public homepage (bisa diakses semua orang)
 Route::get('/', [DashboardController::class, 'index'])->name('home');
 
-// Product detail page (public)
-Route::get('/products/{product:slug}', [DashboardController::class, 'show'])->name('products.show');
+// Public product routes
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/api/products/search', [ProductController::class, 'search'])->name('products.search');
 
 // Midtrans callback (public - no auth needed)
 Route::post('/midtrans/callback', [MidtransController::class, 'callback'])->name('midtrans.callback');
@@ -40,18 +45,30 @@ Route::get('/category/{category}', [DashboardController::class, 'filterByCategor
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
-    
+
     // User dashboard
     Route::get('/dashboard', function() {
         return redirect('/');
     })->name('dashboard');
-    
+
     // User transactions
     Route::prefix('my')->name('user.')->group(function () {
         Route::get('/transactions', [UserTransactionController::class, 'index'])->name('transactions.index');
         Route::get('/transactions/{transaction}', [UserTransactionController::class, 'show'])->name('transactions.show');
         Route::post('/checkout', [UserTransactionController::class, 'checkout'])->name('checkout');
     });
+
+    // Transactions (alternative routes from fe branch)
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.list');
+    Route::get('/transactions/create/{product}', [TransactionController::class, 'create'])->name('transactions.create');
+    Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/transactions/{transactionCode}', [TransactionController::class, 'detail'])->name('transactions.detail');
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::get('/profile/vouchers', [ProfileController::class, 'vouchers'])->name('profile.vouchers');
 });
 
 // Admin only routes

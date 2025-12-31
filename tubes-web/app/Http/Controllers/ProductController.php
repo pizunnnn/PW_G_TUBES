@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Transaction;
+use App\Models\Slider;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -44,8 +46,18 @@ class ProductController extends Controller
         
         $products = $query->paginate(12)->withQueryString();
         $categories = Category::active()->withCount('products')->get();
-        
-        return view('products.index', compact('products', 'categories'));
+
+        // Get recent paid transactions for running text
+        $recentTransactions = Transaction::paid()
+            ->with(['user', 'product'])
+            ->latest('paid_at')
+            ->limit(15)
+            ->get();
+
+        // Get active sliders
+        $sliders = Slider::active()->ordered()->with('product')->get();
+
+        return view('products.index', compact('products', 'categories', 'recentTransactions', 'sliders'));
     }
     
     public function show($slug)
